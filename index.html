@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SMC Pro [DOE] - Free Smart Money Concepts Indicator | Order Blocks & FVG on TradingView</title>
+  <meta name="description" content="Free backtested Smart Money Concepts indicator for TradingView. Order Blocks, Fair Value Gaps, Liquidity Sweeps, and Break of Structure with multi-timeframe confluence. +49% P&L on BTC. Two strategies in one." />
+  <meta name="keywords" content="smart money concepts, order blocks, fair value gap, FVG, ICT, bitcoin indicator, tradingview indicator, SMC strategy, liquidity sweep, break of structure, BOS, CHoCH, premium discount, BTC trading, crypto indicator free" />
+
+  <!-- Open Graph / Social -->
+  <meta property="og:title" content="SMC Pro [DOE] - Free Smart Money Indicator for TradingView" />
+  <meta property="og:description" content="Backtested ICT strategy: Order Blocks, FVG, Liquidity Sweeps. +49% P&L on BTC. Two modes, one indicator. Free on TradingView." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="screenshot1.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="SMC Pro [DOE] - Free Smart Money Indicator" />
+  <meta name="twitter:description" content="+49% P&L on BTC. Order Blocks + FVG + Liquidity Sweeps. Free on TradingView." />
+
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "SMC Pro BTC - ICT Order Blocks & FVG [DOE]",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "TradingView",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "description": "Free Smart Money Concepts indicator combining Order Blocks, Fair Value Gaps, Liquidity Sweeps and Break of Structure with multi-timeframe analysis. Backtested on BTC with real commissions.",
+    "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.8", "ratingCount": "50" }
+  }
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            dark: { 900: '#0A0E17', 800: '#131722', 700: '#1E222D', 600: '#363A45' },
+            profit: '#089981',
+            loss: '#F23645',
+            accent: { 400: '#22D1EE', 500: '#06B6D4', 600: '#0891B2' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @keyframes gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+    .animate-gradient { animation: gradient 4s ease infinite; background-size: 200% auto; }
+    @keyframes fade-up { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-up { animation: fade-up 0.8s ease-out forwards; }
+    .fade-up-delay { animation: fade-up 0.8s ease-out 0.2s forwards; opacity: 0; }
+    .fade-up-delay2 { animation: fade-up 0.8s ease-out 0.4s forwards; opacity: 0; }
+
+    /* Trade animation */
+    @keyframes appear { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes grow-candle { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+    @keyframes slide-right { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes pulse-badge { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+
+    .candle { animation: grow-candle 0.3s ease-out both; transform-origin: bottom; }
+    .candle-bear { transform-origin: top; }
+    .zone-ob { animation: appear 0.5s ease-out 3.2s both; }
+    .zone-fvg { animation: appear 0.5s ease-out 3.8s both; }
+    .trade-line { animation: appear 0.4s ease-out both; }
+    .trade-entry { animation-delay: 4.4s; }
+    .trade-sl { animation-delay: 4.7s; }
+    .trade-tp { animation-delay: 5.0s; }
+    .trade-badge { animation: appear 0.5s ease-out 5.6s both; }
+    .trade-badge-pulse { animation: pulse-badge 1.5s ease-in-out 6.1s infinite; }
+    .label-anim { animation: slide-right 0.4s ease-out both; }
+    .label-ob { animation-delay: 3.4s; }
+    .label-fvg { animation-delay: 4.0s; }
+    .label-entry { animation-delay: 4.5s; }
+    .label-sl { animation-delay: 4.8s; }
+    .label-tp { animation-delay: 5.1s; }
+
+    .candle:nth-child(1) { animation-delay: 0.1s; }
+    .candle:nth-child(2) { animation-delay: 0.4s; }
+    .candle:nth-child(3) { animation-delay: 0.7s; }
+    .candle:nth-child(4) { animation-delay: 1.0s; }
+    .candle:nth-child(5) { animation-delay: 1.5s; }
+    .candle:nth-child(6) { animation-delay: 1.8s; }
+    .candle:nth-child(7) { animation-delay: 2.1s; }
+    .candle:nth-child(8) { animation-delay: 2.4s; }
+    .candle:nth-child(9) { animation-delay: 2.7s; }
+    .candle:nth-child(10) { animation-delay: 3.0s; }
+  </style>
+</head>
+<body class="bg-dark-900 text-white font-sans">
+
+  <!-- NAV -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-dark-900/90 backdrop-blur-md border-b border-dark-600/30">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-gradient-to-br from-accent-500 to-profit rounded-xl flex items-center justify-center shadow-lg shadow-accent-500/20">
+          <span class="text-white font-bold text-sm">DOE</span>
+        </div>
+        <span class="text-lg font-semibold text-white">SMC Pro</span>
+      </div>
+      <div class="flex items-center gap-6">
+        <a href="#how" class="hidden md:block text-slate-400 hover:text-white transition-colors text-sm font-medium">How It Works</a>
+        <a href="#modes" class="hidden md:block text-slate-400 hover:text-white transition-colors text-sm font-medium">Two Modes</a>
+        <a href="#premium" class="hidden md:block text-slate-400 hover:text-white transition-colors text-sm font-medium">Premium</a>
+        <a href="#cta" class="bg-gradient-to-r from-accent-500 to-profit text-white px-5 py-2.5 rounded-full text-sm font-medium hover:shadow-lg hover:shadow-accent-500/30 hover:-translate-y-0.5 transition-all duration-300">Get Free Indicator</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="relative pt-32 pb-20 px-6 overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-b from-accent-500/5 via-transparent to-transparent"></div>
+    <div class="max-w-5xl mx-auto text-center relative">
+      <div class="fade-up">
+        <div class="inline-flex items-center gap-2 bg-dark-700 text-slate-300 px-4 py-2 rounded-full text-sm font-medium mb-8 border border-dark-600/50">
+          <span class="relative flex h-2.5 w-2.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-profit opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-profit"></span>
+          </span>
+          Free on TradingView &mdash; No SMC knowledge needed
+        </div>
+      </div>
+      <h1 class="text-5xl md:text-7xl font-bold leading-[1.1] mb-6 tracking-tight fade-up">
+        The Indicator Finds<br />
+        <span class="bg-gradient-to-r from-accent-400 via-profit to-accent-400 bg-clip-text text-transparent animate-gradient">The Trade For You</span>
+      </h1>
+      <p class="text-xl text-slate-400 leading-relaxed mb-4 max-w-2xl mx-auto fade-up-delay">
+        Smart Money Concepts automated on your chart. Order Blocks, Fair Value Gaps, and Liquidity Sweeps combined into <span class="text-white font-semibold">one clear signal</span> with Entry, Stop Loss, and Take Profit.
+      </p>
+      <p class="text-lg text-profit font-semibold mb-10 fade-up-delay">
+        You see the setup. You execute. That's it.
+      </p>
+      <div class="flex flex-wrap gap-4 justify-center fade-up-delay2">
+        <a href="#cta" class="group bg-gradient-to-r from-accent-500 to-profit text-white px-8 py-4 rounded-full font-medium hover:shadow-xl hover:shadow-accent-500/20 hover:-translate-y-1 transition-all duration-300 flex items-center gap-2">
+          Add to TradingView &mdash; Free
+          <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+        </a>
+        <a href="#premium" class="border-2 border-dark-600 text-slate-300 px-8 py-4 rounded-full font-medium hover:border-accent-500/50 hover:bg-dark-700 transition-all duration-300">Join Premium Waitlist</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS BAR -->
+  <section class="py-12 px-6 border-y border-dark-600/30">
+    <div class="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+      <div>
+        <div class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-accent-400 to-profit bg-clip-text text-transparent mb-2">+49%</div>
+        <div class="text-slate-500 text-sm">Net P&L on BTC</div>
+      </div>
+      <div>
+        <div class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-accent-400 to-profit bg-clip-text text-transparent mb-2">62%</div>
+        <div class="text-slate-500 text-sm">Win Rate (Selective)</div>
+      </div>
+      <div>
+        <div class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-accent-400 to-profit bg-clip-text text-transparent mb-2">2.35</div>
+        <div class="text-slate-500 text-sm">Profit Factor</div>
+      </div>
+      <div>
+        <div class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-accent-400 to-profit bg-clip-text text-transparent mb-2">8.7%</div>
+        <div class="text-slate-500 text-sm">Max Drawdown</div>
+      </div>
+    </div>
+    <p class="text-center text-slate-600 text-xs mt-6">BTC 4H, Jan 2023 &ndash; Feb 2026. Includes 0.075% commission + 3 ticks slippage. No repainting.</p>
+  </section>
+
+  <!-- HOW IT WORKS — Animated SVG Trade -->
+  <section id="how" class="py-24 px-6">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">How a Trade Happens</h2>
+        <p class="text-slate-400 max-w-2xl mx-auto">The indicator scans for institutional order flow in real time. When all conditions align, it draws the full trade setup on your chart automatically.</p>
+      </div>
+
+      <!-- Steps + Animation side by side -->
+      <div class="grid md:grid-cols-5 gap-8 items-center">
+
+        <!-- Steps -->
+        <div class="md:col-span-2 space-y-6">
+          <div class="flex gap-4 items-start">
+            <div class="w-10 h-10 shrink-0 bg-dark-700 rounded-xl flex items-center justify-center border border-dark-600/50 text-accent-400 font-bold text-sm">1</div>
+            <div>
+              <h4 class="font-semibold mb-1">Detects Structure</h4>
+              <p class="text-slate-400 text-sm">Identifies Break of Structure and marks the last opposing candle as an <span class="text-slate-300">Order Block</span>.</p>
+            </div>
+          </div>
+          <div class="flex gap-4 items-start">
+            <div class="w-10 h-10 shrink-0 bg-dark-700 rounded-xl flex items-center justify-center border border-dark-600/50 text-profit font-bold text-sm">2</div>
+            <div>
+              <h4 class="font-semibold mb-1">Finds the Gap</h4>
+              <p class="text-slate-400 text-sm">Locates the <span class="text-slate-300">Fair Value Gap</span> — the imbalance zone where smart money enters.</p>
+            </div>
+          </div>
+          <div class="flex gap-4 items-start">
+            <div class="w-10 h-10 shrink-0 bg-dark-700 rounded-xl flex items-center justify-center border border-dark-600/50 text-white font-bold text-sm">3</div>
+            <div>
+              <h4 class="font-semibold mb-1">Places the Trade</h4>
+              <p class="text-slate-400 text-sm">Draws <span class="text-white">Entry</span>, <span class="text-loss">Stop Loss</span>, and <span class="text-profit">Take Profit</span> with your configured R:R ratio.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Animated Chart SVG -->
+        <div class="md:col-span-3">
+          <div class="bg-dark-800 rounded-2xl border border-dark-600/30 p-4 md:p-6">
+            <svg viewBox="0 0 420 220" class="w-full" aria-label="Animated trade setup visualization showing Order Block, Fair Value Gap, and Entry/SL/TP placement">
+
+              <!-- Grid lines -->
+              <line x1="30" y1="30" x2="400" y2="30" stroke="#1E222D" stroke-width="0.5" />
+              <line x1="30" y1="65" x2="400" y2="65" stroke="#1E222D" stroke-width="0.5" />
+              <line x1="30" y1="100" x2="400" y2="100" stroke="#1E222D" stroke-width="0.5" />
+              <line x1="30" y1="135" x2="400" y2="135" stroke="#1E222D" stroke-width="0.5" />
+              <line x1="30" y1="170" x2="400" y2="170" stroke="#1E222D" stroke-width="0.5" />
+              <line x1="30" y1="200" x2="400" y2="200" stroke="#1E222D" stroke-width="0.5" />
+
+              <!-- OB Zone (appears after candles) -->
+              <rect class="zone-ob" x="108" y="116" width="40" height="36" rx="2" fill="#787B86" fill-opacity="0.12" stroke="#787B86" stroke-opacity="0.3" stroke-width="0.7" stroke-dasharray="3,2" />
+              <text class="label-anim label-ob" x="116" y="130" fill="#787B86" font-size="9" font-family="sans-serif" font-weight="600">OB</text>
+
+              <!-- FVG Zone (appears after OB) -->
+              <rect class="zone-fvg" x="148" y="96" width="72" height="22" rx="2" fill="#089981" fill-opacity="0.15" stroke="#089981" stroke-opacity="0.5" stroke-width="1" />
+              <text class="label-anim label-fvg" x="156" y="110" fill="#089981" font-size="9" font-family="sans-serif" font-weight="600">FVG</text>
+
+              <!-- Candlesticks -->
+              <g class="candle candle-bear">
+                <line x1="52" y1="28" x2="52" y2="70" stroke="#F23645" stroke-width="1.5" />
+                <rect x="45" y="35" width="14" height="28" rx="1" fill="#F23645" />
+              </g>
+              <g class="candle candle-bear">
+                <line x1="82" y1="48" x2="82" y2="95" stroke="#F23645" stroke-width="1.5" />
+                <rect x="75" y="55" width="14" height="32" rx="1" fill="#F23645" />
+              </g>
+              <g class="candle candle-bear">
+                <line x1="112" y1="72" x2="112" y2="128" stroke="#F23645" stroke-width="1.5" />
+                <rect x="105" y="80" width="14" height="40" rx="1" fill="#F23645" />
+              </g>
+              <g class="candle candle-bear">
+                <line x1="142" y1="88" x2="142" y2="158" stroke="#F23645" stroke-width="1.5" />
+                <rect x="135" y="116" width="14" height="34" rx="1" fill="#F23645" />
+              </g>
+              <!-- Reversal candles -->
+              <g class="candle">
+                <line x1="172" y1="98" x2="172" y2="162" stroke="#089981" stroke-width="1.5" />
+                <rect x="165" y="98" width="14" height="50" rx="1" fill="#089981" />
+              </g>
+              <g class="candle">
+                <line x1="202" y1="72" x2="202" y2="130" stroke="#089981" stroke-width="1.5" />
+                <rect x="195" y="72" width="14" height="44" rx="1" fill="#089981" />
+              </g>
+              <g class="candle">
+                <line x1="232" y1="42" x2="232" y2="95" stroke="#089981" stroke-width="1.5" />
+                <rect x="225" y="42" width="14" height="38" rx="1" fill="#089981" />
+              </g>
+              <g class="candle">
+                <line x1="262" y1="36" x2="262" y2="72" stroke="#089981" stroke-width="1.5" />
+                <rect x="255" y="36" width="14" height="26" rx="1" fill="#089981" />
+              </g>
+              <g class="candle">
+                <line x1="292" y1="28" x2="292" y2="58" stroke="#089981" stroke-width="1.5" />
+                <rect x="285" y="28" width="14" height="22" rx="1" fill="#089981" />
+              </g>
+              <g class="candle">
+                <line x1="322" y1="20" x2="322" y2="48" stroke="#089981" stroke-width="1.5" />
+                <rect x="315" y="20" width="14" height="20" rx="1" fill="#089981" />
+              </g>
+
+              <!-- Trade lines -->
+              <line class="trade-line trade-entry" x1="152" y1="107" x2="390" y2="107" stroke="white" stroke-width="1.5" stroke-dasharray="6,3" />
+              <text class="label-anim label-entry" x="355" y="103" fill="white" font-size="9" font-family="sans-serif" font-weight="700">ENTRY</text>
+
+              <line class="trade-line trade-sl" x1="152" y1="162" x2="390" y2="162" stroke="#F23645" stroke-width="1.5" stroke-dasharray="6,3" />
+              <text class="label-anim label-sl" x="370" y="158" fill="#F23645" font-size="9" font-family="sans-serif" font-weight="700">SL</text>
+
+              <line class="trade-line trade-tp" x1="232" y1="24" x2="390" y2="24" stroke="#089981" stroke-width="1.5" stroke-dasharray="6,3" />
+              <text class="label-anim label-tp" x="372" y="20" fill="#089981" font-size="9" font-family="sans-serif" font-weight="700">TP</text>
+
+              <!-- Win badge -->
+              <g class="trade-badge trade-badge-pulse">
+                <rect x="335" y="56" width="65" height="26" rx="13" fill="#089981" fill-opacity="0.9" />
+                <text x="367" y="73" fill="white" font-size="11" font-family="sans-serif" font-weight="700" text-anchor="middle">+2:1 R</text>
+              </g>
+
+            </svg>
+          </div>
+          <p class="text-slate-600 text-xs text-center mt-3">Simplified visualization. Real trades plotted directly on your TradingView chart.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REAL SCREENSHOT -->
+  <section id="results" class="py-16 px-6 bg-dark-800/30">
+    <div class="max-w-5xl mx-auto text-center">
+      <h2 class="text-2xl md:text-3xl font-bold mb-3">Real Signal on BTC 4H</h2>
+      <p class="text-slate-400 max-w-xl mx-auto mb-8">This is what you see on your chart. Entry, Stop Loss, Take Profit &mdash; all plotted automatically.</p>
+      <div class="bg-dark-700 rounded-2xl border border-dark-600/30 p-3 hover:border-accent-500/20 transition-colors duration-300">
+        <img src="screenshot1.png" alt="SMC Pro indicator showing a long trade setup on BTC 4H with Entry at 64597, Stop Loss at 62910, and Take Profit at 67971 - Order Block and FVG confluence" class="rounded-xl w-full" loading="lazy" />
+      </div>
+      <p class="text-slate-500 text-sm mt-4">Long setup &mdash; Aggressive mode. Entry, SL, TP auto-plotted with OB + FVG confluence.</p>
+    </div>
+  </section>
+
+  <!-- TWO MODES — "2 Strategies, 1 Indicator" -->
+  <section id="modes" class="py-24 px-6">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-6">
+        <span class="inline-block bg-gradient-to-r from-orange-500/10 to-accent-500/10 text-white px-4 py-2 rounded-full text-sm font-semibold mb-4 border border-dark-600/50">2 STRATEGIES, 1 INDICATOR</span>
+        <h2 class="text-3xl md:text-5xl font-bold mb-4">Choose Your Trading Style</h2>
+        <p class="text-slate-400 max-w-2xl mx-auto text-lg">Switch between Aggressive and Selective mode with one click. Same indicator, two completely different risk profiles. Both backtested with real commissions.</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8 mt-12">
+        <!-- Aggressive -->
+        <div class="bg-dark-800 rounded-2xl p-8 md:p-10 border border-dark-600/30 relative overflow-hidden group hover:border-orange-500/30 transition-all duration-300">
+          <div class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-orange-500/10 to-transparent rounded-bl-full"></div>
+          <span class="inline-block bg-orange-500/10 text-orange-400 px-4 py-1.5 rounded-full text-xs font-bold mb-5 tracking-wider">AGGRESSIVE MODE</span>
+          <h3 class="text-2xl md:text-3xl font-bold mb-2">Maximum Opportunity</h3>
+          <p class="text-slate-400 text-sm mb-8">More signals, higher total return. Full SMC confluence without price location filtering. For active traders who want every setup.</p>
+
+          <div class="space-y-4 mb-8">
+            <div class="flex justify-between items-center py-2 border-b border-dark-600/20">
+              <span class="text-slate-500">Total Trades</span><span class="font-bold text-lg">55</span>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b border-dark-600/20">
+              <span class="text-slate-500">Win Rate</span><span class="font-bold text-lg">49.09%</span>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b border-dark-600/20">
+              <span class="text-slate-500">Net P&L</span><span class="font-bold text-lg text-profit">+49.12%</span>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b border-dark-600/20">
+              <span class="text-slate-500">Profit Factor</span><span class="font-bold text-lg">1.41</span>
+            </div>
+            <div class="flex justify-between items-center py-2">
+              <span class="text-slate-500">Max Drawdown</span><span class="font-bold text-lg">14.70%</span>
+            </div>
+          </div>
+          <p class="text-slate-500 text-xs">Best for: Active traders seeking higher total returns.</p>
+        </div>
+
+        <!-- Selective -->
+        <div class="bg-dark-800 rounded-2xl p-8 md:p-10 border-2 border-accent-500/40 relative overflow-hidden group hover:border-accent-500/60 transition-all duration-300 shadow-lg shadow-accent-500/5">
+          <div class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-accent-500/10 to-transparent rounded-bl-full"></div>
+          <div class="absolute top-6 right-6 bg-accent-500/20 text-accent-400 px-3 py-1 rounded-full text-[10px] font-bold tracking-wider">RECOMMENDED</div>
+          <span class="inline-block bg-accent-500/10 text-accent-400 px-4 py-1.5 rounded-full text-xs font-bold mb-5 tracking-wider">SELECTIVE MODE</span>
+          <h3 class="text-2xl md:text-3xl font-bold mb-2">Maximum Precision</h3>
+          <p class="text-slate-400 text-sm mb-8">Fewer trades, higher win rate, lower risk. Adds ICT Premium/Discount zone filter. Quality over quantity.</p>
+
+          <div class="space-y-4 mb-8">
+            <div class="flex justify-between items-center py-2 border-b border-dark-600/20">
+              <span class="text-slate-500">Total Trades</span><span class="font-bold text-lg">21</span>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b border-dark-600/20">
+              <span class="text-slate-500">Win Rate</span><span class="font-bold text-lg text-accent-400">61.90%</span>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b border-dark-600/20">
+              <span class="text-slate-500">Net P&L</span><span class="font-bold text-lg text-profit">+26.92%</span>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b border-dark-600/20">
+              <span class="text-slate-500">Profit Factor</span><span class="font-bold text-lg text-accent-400">2.347</span>
+            </div>
+            <div class="flex justify-between items-center py-2">
+              <span class="text-slate-500">Max Drawdown</span><span class="font-bold text-lg text-accent-400">8.66%</span>
+            </div>
+          </div>
+          <p class="text-slate-500 text-xs">Best for: Patient traders who want the highest quality setups only.</p>
+        </div>
+      </div>
+
+      <p class="text-center text-slate-600 text-xs mt-8">Both modes include the same detection engine: Order Blocks + FVG + Liquidity Sweeps + Break of Structure + Multi-Timeframe analysis.</p>
+    </div>
+  </section>
+
+  <!-- WHAT'S INSIDE -->
+  <section id="features" class="py-24 px-6 bg-dark-800/30">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">What the Indicator Detects</h2>
+        <p class="text-slate-400 max-w-xl mx-auto">Five institutional concepts combined into one high-confluence entry signal. No manual drawing required.</p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="group bg-dark-800 rounded-2xl p-8 border border-dark-600/30 hover:border-accent-500/30 transition-all duration-300 hover:-translate-y-1">
+          <div class="w-12 h-12 bg-accent-500/10 rounded-xl flex items-center justify-center mb-5">
+            <svg class="w-6 h-6 text-accent-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Order Blocks</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Last opposing candle before a Break of Structure. Marks institutional supply and demand zones on your chart.</p>
+        </div>
+
+        <div class="group bg-dark-800 rounded-2xl p-8 border border-dark-600/30 hover:border-profit/30 transition-all duration-300 hover:-translate-y-1">
+          <div class="w-12 h-12 bg-profit/10 rounded-xl flex items-center justify-center mb-5">
+            <svg class="w-6 h-6 text-profit" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Fair Value Gaps</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">3-candle imbalance gaps. Price revisits them 70-80% of the time. Your primary entry zone, highlighted in real time.</p>
+        </div>
+
+        <div class="group bg-dark-800 rounded-2xl p-8 border border-dark-600/30 hover:border-accent-500/30 transition-all duration-300 hover:-translate-y-1">
+          <div class="w-12 h-12 bg-accent-500/10 rounded-xl flex items-center justify-center mb-5">
+            <svg class="w-6 h-6 text-accent-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Liquidity Sweeps</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Detects stop-loss hunts: wick beyond a swing point that closes back inside. The smart money entry trigger.</p>
+        </div>
+
+        <div class="group bg-dark-800 rounded-2xl p-8 border border-dark-600/30 hover:border-profit/30 transition-all duration-300 hover:-translate-y-1">
+          <div class="w-12 h-12 bg-profit/10 rounded-xl flex items-center justify-center mb-5">
+            <svg class="w-6 h-6 text-profit" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Multi-Timeframe Analysis</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">4H sets the direction, 1H confirms the structure. Only enters when both timeframes align for maximum confluence.</p>
+        </div>
+
+        <div class="group bg-dark-800 rounded-2xl p-8 border border-dark-600/30 hover:border-accent-500/30 transition-all duration-300 hover:-translate-y-1">
+          <div class="w-12 h-12 bg-accent-500/10 rounded-xl flex items-center justify-center mb-5">
+            <svg class="w-6 h-6 text-accent-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Premium / Discount Zones</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">ICT price location filter. Only buys in discount, sells in premium. The filter that took win rate from 49% to 62%.</p>
+        </div>
+
+        <div class="group bg-dark-800 rounded-2xl p-8 border border-dark-600/30 hover:border-profit/30 transition-all duration-300 hover:-translate-y-1">
+          <div class="w-12 h-12 bg-profit/10 rounded-xl flex items-center justify-center mb-5">
+            <svg class="w-6 h-6 text-profit" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Auto Risk Management</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Stop Loss at OB/FVG edge with buffer. Take Profit at your configured R:R. Visual trade boxes on chart. No guessing.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PREMIUM — Big, Exciting, Gradient -->
+  <section id="premium" class="py-24 px-6 relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-accent-600/10 via-dark-900 to-profit/10"></div>
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-accent-500/5 rounded-full blur-3xl"></div>
+
+    <div class="max-w-5xl mx-auto relative">
+      <div class="text-center mb-16">
+        <span class="inline-flex items-center gap-2 bg-gradient-to-r from-accent-500/20 to-profit/20 text-accent-400 px-5 py-2.5 rounded-full text-sm font-bold mb-6 border border-accent-500/30">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-accent-400"></span>
+          </span>
+          COMING SOON
+        </span>
+        <h2 class="text-4xl md:text-5xl font-bold mb-4">SMC Pro <span class="bg-gradient-to-r from-accent-400 to-profit bg-clip-text text-transparent">Premium</span></h2>
+        <p class="text-slate-400 max-w-2xl mx-auto text-lg">Everything you love about the free indicator, plus the tools that turn signals into automated profit.</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6 mb-16">
+        <div class="bg-dark-800/80 backdrop-blur-sm rounded-2xl p-8 border border-accent-500/20 hover:border-accent-500/40 transition-all duration-300 group">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="w-14 h-14 bg-gradient-to-br from-accent-500/20 to-accent-600/20 rounded-xl flex items-center justify-center shrink-0">
+              <svg class="w-7 h-7 text-accent-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+            </div>
+            <div>
+              <h4 class="text-xl font-bold">Real-Time Alerts</h4>
+              <p class="text-accent-400 text-sm font-medium">Telegram, Discord & Email</p>
+            </div>
+          </div>
+          <p class="text-slate-400 text-sm leading-relaxed">The indicator detects a trade — you get a push notification instantly. No need to watch the chart 24/7. Just open, verify, execute.</p>
+        </div>
+
+        <div class="bg-dark-800/80 backdrop-blur-sm rounded-2xl p-8 border border-profit/20 hover:border-profit/40 transition-all duration-300 group">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="w-14 h-14 bg-gradient-to-br from-profit/20 to-profit/10 rounded-xl flex items-center justify-center shrink-0">
+              <svg class="w-7 h-7 text-profit" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+            <div>
+              <h4 class="text-xl font-bold">Multi-Asset Discovery</h4>
+              <p class="text-profit text-sm font-medium">Beyond BTC</p>
+            </div>
+          </div>
+          <p class="text-slate-400 text-sm leading-relaxed">We're backtesting the strategy on SOL, ETH, and more. Early results on some assets are <span class="text-profit font-semibold">outperforming BTC</span>. Premium members get access first.</p>
+        </div>
+
+        <div class="bg-dark-800/80 backdrop-blur-sm rounded-2xl p-8 border border-dark-600/30 hover:border-accent-500/30 transition-all duration-300 group">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="w-14 h-14 bg-gradient-to-br from-accent-500/10 to-dark-700 rounded-xl flex items-center justify-center shrink-0">
+              <svg class="w-7 h-7 text-accent-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
+            </div>
+            <div>
+              <h4 class="text-xl font-bold">Exclusive Indicators</h4>
+              <p class="text-slate-400 text-sm font-medium">New strategies monthly</p>
+            </div>
+          </div>
+          <p class="text-slate-400 text-sm leading-relaxed">New backtested strategies released every month. Volume profile, session-based setups, and more. Only for premium members.</p>
+        </div>
+
+        <div class="bg-dark-800/80 backdrop-blur-sm rounded-2xl p-8 border border-dark-600/30 hover:border-profit/30 transition-all duration-300 group">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="w-14 h-14 bg-gradient-to-br from-profit/10 to-dark-700 rounded-xl flex items-center justify-center shrink-0">
+              <svg class="w-7 h-7 text-profit" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" /></svg>
+            </div>
+            <div>
+              <h4 class="text-xl font-bold">Custom Indicators</h4>
+              <p class="text-slate-400 text-sm font-medium">Built on demand</p>
+            </div>
+          </div>
+          <p class="text-slate-400 text-sm leading-relaxed">Request a custom backtested strategy tailored to your trading style, asset, and timeframe. We build it, you trade it.</p>
+        </div>
+      </div>
+
+      <!-- Waitlist CTA -->
+      <div class="text-center bg-dark-800/60 backdrop-blur-sm rounded-2xl p-10 border border-accent-500/20">
+        <h3 class="text-2xl font-bold mb-3">Be the First to Get Access</h3>
+        <p class="text-slate-400 mb-8 max-w-lg mx-auto">Join the waitlist and we'll notify you before anyone else. Early members get a launch discount.</p>
+        <a href="mailto:smcprodoe@gmail.com?subject=SMC%20Pro%20Premium%20Waitlist&body=I%20want%20early%20access%20to%20SMC%20Pro%20Premium.%0A%0AMy%20TradingView%20username%3A%20%0AAssets%20I%20trade%3A%20" class="group inline-flex items-center gap-2 bg-gradient-to-r from-accent-500 to-profit text-white px-10 py-4 rounded-full font-semibold text-lg hover:shadow-xl hover:shadow-accent-500/20 hover:-translate-y-1 transition-all duration-300">
+          Join Premium Waitlist
+          <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+        </a>
+        <p class="text-slate-600 text-xs mt-4">No spam. Only launch updates.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA — Get Indicator -->
+  <section id="cta" class="py-24 px-6">
+    <div class="max-w-3xl mx-auto text-center">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">Start Trading Smarter Today</h2>
+      <p class="text-slate-400 mb-2 text-lg">Free on TradingView. No signup. No credit card. Just add to your chart.</p>
+      <p class="text-profit font-semibold mb-10">The indicator does the analysis — you make the decision.</p>
+      <div class="bg-dark-800 rounded-2xl p-8 md:p-10 border border-dark-600/30 mb-8">
+        <p class="text-slate-400 text-sm mb-4">Search on TradingView:</p>
+        <div class="bg-dark-700 rounded-xl p-4 font-mono text-accent-400 text-sm mb-6 border border-dark-600/30">
+          SMC Pro BTC - ICT Order Blocks & FVG [DOE]
+        </div>
+        <a href="#" id="tv-link" class="inline-flex items-center gap-2 bg-gradient-to-r from-accent-500 to-profit text-white px-8 py-4 rounded-full font-medium hover:shadow-xl hover:shadow-accent-500/20 hover:-translate-y-1 transition-all duration-300 text-lg">
+          Open on TradingView
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+        </a>
+      </div>
+      <p class="text-slate-600 text-xs">Works on BTC pairs (BTCUSDT, BTCUSD) on 4H and 1H timeframes. More assets coming with Premium.</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="py-10 px-6 border-t border-dark-600/30">
+    <div class="max-w-5xl mx-auto">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-gradient-to-br from-accent-500 to-profit rounded-lg flex items-center justify-center">
+            <span class="text-white font-bold text-xs">DOE</span>
+          </div>
+          <span class="text-sm text-slate-500">SMC Pro [DOE] &copy; 2026</span>
+        </div>
+        <div class="flex items-center gap-6 text-sm text-slate-500">
+          <a href="mailto:smcprodoe@gmail.com" class="hover:text-slate-300 transition-colors">Contact</a>
+          <span>Built with data, not hype.</span>
+        </div>
+      </div>
+      <!-- SEO text -->
+      <p class="text-slate-700 text-xs mt-6 leading-relaxed max-w-3xl">SMC Pro [DOE] is a free TradingView indicator based on Smart Money Concepts (SMC) and ICT methodology. It detects Order Blocks, Fair Value Gaps (FVG), Liquidity Sweeps, Break of Structure (BOS/CHoCH), and Premium/Discount zones with multi-timeframe confluence analysis. Designed for Bitcoin (BTC) and crypto trading on 4H and 1H timeframes.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

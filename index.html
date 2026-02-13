@@ -30,6 +30,15 @@
   }
   </script>
 
+  <!-- Google Analytics — replace GA_MEASUREMENT_ID with your GA4 ID -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'GA_MEASUREMENT_ID');
+  </script>
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -136,7 +145,7 @@
           Add to TradingView &mdash; Free
           <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
         </a>
-        <a href="#premium" class="border-2 border-dark-600 text-slate-300 px-8 py-4 rounded-full font-medium hover:border-accent-500/50 hover:bg-dark-700 transition-all duration-300">Join Premium Waitlist</a>
+        <a href="#waitlist" class="border-2 border-dark-600 text-slate-300 px-8 py-4 rounded-full font-medium hover:border-accent-500/50 hover:bg-dark-700 transition-all duration-300">Join Premium Waitlist</a>
       </div>
     </div>
   </section>
@@ -501,15 +510,38 @@
         </div>
       </div>
 
-      <!-- Waitlist CTA -->
-      <div class="text-center bg-dark-800/60 backdrop-blur-sm rounded-2xl p-10 border border-accent-500/20">
-        <h3 class="text-2xl font-bold mb-3">Be the First to Get Access</h3>
-        <p class="text-slate-400 mb-8 max-w-lg mx-auto">Join the waitlist and we'll notify you before anyone else. Early members get a launch discount.</p>
-        <a href="mailto:smcprodoe@gmail.com?subject=SMC%20Pro%20Premium%20Waitlist&body=I%20want%20early%20access%20to%20SMC%20Pro%20Premium.%0A%0AMy%20TradingView%20username%3A%20%0AAssets%20I%20trade%3A%20" class="group inline-flex items-center gap-2 bg-gradient-to-r from-accent-500 to-profit text-white px-10 py-4 rounded-full font-semibold text-lg hover:shadow-xl hover:shadow-accent-500/20 hover:-translate-y-1 transition-all duration-300">
-          Join Premium Waitlist
-          <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-        </a>
-        <p class="text-slate-600 text-xs mt-4">No spam. Only launch updates.</p>
+      <!-- Waitlist Form -->
+      <div id="waitlist" class="bg-dark-800/60 backdrop-blur-sm rounded-2xl p-10 border border-accent-500/20">
+        <h3 class="text-2xl font-bold mb-3 text-center">Be the First to Get Access</h3>
+        <p class="text-slate-400 mb-8 max-w-lg mx-auto text-center">Join the waitlist and we'll notify you before anyone else. Early members get a launch discount.</p>
+        <form action="https://formsubmit.co/smcprodoe@gmail.com" method="POST" class="max-w-md mx-auto space-y-4">
+          <!-- FormSubmit config -->
+          <input type="hidden" name="_subject" value="New Waitlist Signup - SMC Pro Premium" />
+          <input type="hidden" name="_captcha" value="true" />
+          <input type="hidden" name="_next" value="https://smcprodoe.github.io/smc-pro-landing/thanks.html" />
+          <input type="hidden" name="_template" value="box" />
+          <input type="text" name="_honey" style="display:none" />
+
+          <div>
+            <input type="email" name="email" required placeholder="Your email" class="w-full bg-dark-700 border border-dark-600/50 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-accent-500/50 transition-colors text-sm" />
+          </div>
+          <div>
+            <input type="text" name="tradingview_username" placeholder="TradingView username (optional)" class="w-full bg-dark-700 border border-dark-600/50 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-accent-500/50 transition-colors text-sm" />
+          </div>
+          <div>
+            <select name="assets" class="w-full bg-dark-700 border border-dark-600/50 rounded-xl px-4 py-3 text-slate-400 focus:outline-none focus:border-accent-500/50 transition-colors text-sm">
+              <option value="" disabled selected>What do you trade? (optional)</option>
+              <option value="BTC only">BTC only</option>
+              <option value="BTC + altcoins">BTC + altcoins</option>
+              <option value="Crypto + Forex">Crypto + Forex</option>
+              <option value="Multiple markets">Multiple markets</option>
+            </select>
+          </div>
+          <button type="submit" class="w-full bg-gradient-to-r from-accent-500 to-profit text-white py-4 rounded-full font-semibold text-lg hover:shadow-xl hover:shadow-accent-500/20 hover:-translate-y-1 transition-all duration-300">
+            Join Premium Waitlist
+          </button>
+        </form>
+        <p class="text-slate-600 text-xs mt-4 text-center">No spam. Only launch updates.</p>
       </div>
     </div>
   </section>
